@@ -1,0 +1,72 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@rules_foreign_cc//tools/build_defs:configure.bzl", "configure_make")
+
+load(
+    "@obazl_rules_ocaml//ocaml:rules.bzl",
+    "ocaml_interface",
+    "ocaml_module",
+)
+
+#############
+ocaml_module(
+    name = "jemalloc",
+    src = "jemalloc.ml",
+    intf = ":_Jemalloc.cmi",
+    opts = ["-linkall"],
+    cc_deps = {
+        ":jemalloc_stubs": "static", # obazl dynamic does not seem to work
+        ":libjemalloc"   : "static" # obazl dynamic does not seem to work
+    },
+    visibility = ["//visibility:public"]
+)
+
+################
+ocaml_interface(
+    name = "_Jemalloc.cmi",
+    src = "jemalloc.mli",
+)
+
+cc_library(
+    name  = "jemalloc_stubs",
+    # copts = ["-I."],
+    srcs  = ["jemalloc_stubs.c"],
+    deps  = [
+        "@ocaml//csdk/ctypes",
+        ":libjemalloc"
+    ],
+    visibility = ["//visibility:public"]
+)
+
+###############
+# Bazel makes it virtually impossible to use select with a dictionary,
+# so we just duplicate:
+ENV_VARS = select({
+    "//bzl/host:macos": {
+        "AR": "",
+        "CFLAGS": "-DJEMALLOC_MANGLE"
+        },
+    "//bzl/host:linux": {
+        "CFLAGS": "-DJEMALLOC_MANGLE"
+        },
+    "//conditions:default": {
+    }
+})
+
+configure_make(
+    name = "libjemalloc",
+    autogen = True,
+    configure_in_place = True,
+    configure_env_vars = ENV_VARS,
+    defines = ["JEMALLOC_MANGLE"],
+    lib_source = "@libjemalloc//:all",
+    out_lib_dir = "lib",
+    shared_libraries = select({
+        "//bzl/host:macos": ["libjemalloc.dylib"],
+        "//bzl/host:linux": ["libjemalloc.so"],
+        "//conditions:default": ["libjemalloc.so"]
+    }),
+    static_libraries = [
+        "libjemalloc.a",
+    ],
+    visibility = ["//visibility:public"],
+)
