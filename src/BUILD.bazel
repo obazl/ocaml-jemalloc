@@ -28,7 +28,6 @@ ocaml_interface(
 
 cc_library(
     name  = "jemalloc_stubs",
-    # copts = ["-I."],
     srcs  = ["jemalloc_stubs.c"],
     deps  = [
         "@ocaml//csdk/ctypes",
@@ -46,10 +45,16 @@ ENV_VARS = select({
         "CFLAGS": "-DJEMALLOC_MANGLE"
         },
     "//bzl/host:linux": {
-        "CFLAGS": "-DJEMALLOC_MANGLE"
+        # "CFLAGS": "-DJEMALLOC_NO_DEMANGLE"                  # => mallctl
+        # "CFLAGS": "-DJEMALLOC_MANGLE"                       # => je_je_mallctl
+        # "CFLAGS": "-DJEMALLOC_NO_RENAME"                        # => je_je_mallctl
+        # "CFLAGS": "-DJEMALLOC_MANGLE -DJEMALLOC_NO_RENAME"  # => je_je_mallctl
+        # "CFLAGS": "-DJEMALLOC_MANGLE -DJEMALLOC_NO_DEMANGLE"  # => je_je_mallctl
+        # "CFLAGS": "-DJEMALLOC_MANGLE -DJEMALLOC_NO_DEMANGLE -DJEMALLOC_NO_RENAME" # => mallctl
         },
-    "//conditions:default": {
-    }
+    # "//conditions:default": {
+    #     "CFLAGS": "-DJEMALLOC_MANGLE"
+    # }
 })
 
 configure_make(
@@ -57,7 +62,11 @@ configure_make(
     autogen = True,
     configure_in_place = True,
     configure_env_vars = ENV_VARS,
-    defines = ["JEMALLOC_MANGLE"],
+    # defines = [
+    #     "JEMALLOC_MANGLE",
+    #     # "JEMALLOC_NO_DEMANGLE",
+    #     "JEMALLOC_NO_RENAME"
+    # ],
     lib_source = "@libjemalloc//:all",
     out_lib_dir = "lib",
     shared_libraries = select({
