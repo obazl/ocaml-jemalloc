@@ -62,11 +62,10 @@ configure_make(
     autogen = True,
     configure_in_place = True,
     configure_env_vars = ENV_VARS,
-    # defines = [
-    #     "JEMALLOC_MANGLE",
-    #     # "JEMALLOC_NO_DEMANGLE",
-    #     "JEMALLOC_NO_RENAME"
-    # ],
+    defines = select({
+        "//bzl/host:macos": ["JEMALLOC_MANGLE"],
+        "//bzl/host:linux": [],
+    }, no_match_error = "Unsupported platform. MacOS or Linux only."),
     lib_source = "@libjemalloc//:all",
     out_lib_dir = "lib",
     shared_libraries = select({
