@@ -15,7 +15,7 @@ http_archive(
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 bazel_skylib_workspace()
 
-################################################################
+###############
 git_repository(
     name = "obazl_tools_bazel",
     remote = "https://github.com/obazl/tools_bazel",
@@ -37,14 +37,14 @@ load("//bzl:opam.bzl", "opam")
 switch = opam_configure(opam = opam)
 
 load("@obazl_rules_ocaml//ocaml:bootstrap.bzl", ocaml_configure = "configure")
-ocaml_configure()
+ocaml_configure( switch = switch)
 
 ################
 http_archive(
     name = "rules_foreign_cc",
     strip_prefix="rules_foreign_cc-master",
     url = "https://github.com/bazelbuild/rules_foreign_cc/archive/master.zip",
-    # sha256 = "3e6b0691fc57db8217d535393dcc2cf7c1d39fc87e9adb6e7d7bab1483915110"
+    sha256 = "3e6b0691fc57db8217d535393dcc2cf7c1d39fc87e9adb6e7d7bab1483915110"
 )
 
 load("@rules_foreign_cc//:workspace_definitions.bzl", "rules_foreign_cc_dependencies")

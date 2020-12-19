@@ -7,6 +7,8 @@ see jemalloc [man page](http://jemalloc.net/jemalloc.3.html)
 
 # building
 
+Prereq: autoconf
+
 `$ bazel build src:jemalloc`
 
 To build just the libjemalloc static archive and shared lib:
