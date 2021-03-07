@@ -3,25 +3,26 @@ load("@rules_foreign_cc//tools/build_defs:configure.bzl", "configure_make")
 
 load(
     "@obazl_rules_ocaml//ocaml:rules.bzl",
-    "ocaml_interface",
+    "ocaml_signature",
     "ocaml_module",
 )
 
 #############
 ocaml_module(
-    name = "jemalloc",
-    src = "jemalloc.ml",
-    intf = ":_Jemalloc.cmi",
-    opts = ["-linkall"],
+    name   = "jemalloc",
+    struct = "jemalloc.ml",
+    sig    = ":_Jemalloc.cmi",
+    opts   = ["-linkall"],
     cc_deps = {
-        ":jemalloc_stubs": "static", # obazl dynamic does not seem to work
-        ":libjemalloc"   : "static" # obazl dynamic does not seem to work
+        # on macos, using dynamic: dyld: Library not loaded, Reason: image not found
+        ":jemalloc_stubs": "static",
+        ":libjemalloc"   : "static"
     },
     visibility = ["//visibility:public"]
 )
 
 ################
-ocaml_interface(
+ocaml_signature(
     name = "_Jemalloc.cmi",
     src = "jemalloc.mli",
 )
