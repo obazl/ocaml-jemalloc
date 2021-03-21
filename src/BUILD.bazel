@@ -5,11 +5,21 @@ load(
     "@obazl_rules_ocaml//ocaml:rules.bzl",
     "ocaml_signature",
     "ocaml_module",
+    "ocaml_ns_archive",
+)
+
+#################
+ocaml_ns_archive(
+    name = "jemalloc",
+    submodules = [
+        ":_Jemalloc"
+    ],
+    visibility = ["//visibility:public"]
 )
 
 #############
 ocaml_module(
-    name   = "jemalloc",
+    name   = "_Jemalloc",
     struct = "jemalloc.ml",
     sig    = ":_Jemalloc.cmi",
     opts   = ["-linkall"],
@@ -18,7 +28,6 @@ ocaml_module(
         ":jemalloc_stubs": "static",
         ":libjemalloc"   : "static"
     },
-    visibility = ["//visibility:public"]
 )
 
 ################
